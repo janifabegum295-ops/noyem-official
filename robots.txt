@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://janifabegum295-ops.github.io/noyem-official/sitemap.xml
