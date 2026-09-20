@@ -1,1 +1,0 @@
-const overlay=document.getElementById('entryAd');const count=document.getElementById('count');const skip=document.getElementById('skip');let n=5;const t=setInterval(()=>{n--;if(n>0)count.textContent=`Skip Ad in ${n}`;else{clearInterval(t);count.textContent='You can skip the ad now';skip.disabled=false}},1000);skip.onclick=()=>overlay.remove();
