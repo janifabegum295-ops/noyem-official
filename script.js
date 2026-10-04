@@ -1,14 +1,12 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbz-gsdHeQbV6KKCDNiHy7j65Kj6DYFR9StCDbZzsJPq0V48ZkxjBDzQMKEYzQQyZh2h/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbz-gsdHeQbV6KKCDNi7j65Kj6DYFR9StCDbZzsJPq0V48ZkxjBDzQMKEYzQQyZh2h/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Footer year
   const year = document.getElementById('year');
   if (year) {
     year.textContent = new Date().getFullYear();
   }
 
-  // Advertisement skip
   const skip = document.getElementById('skip');
   if (skip) {
     skip.onclick = () => {
@@ -17,13 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Mobile menu
   const menu = document.getElementById('menu');
 
   if (menu) {
     menu.onclick = () => {
-      const nav = document.querySelector('nav');
 
+      const nav = document.querySelector('nav');
       if (!nav) return;
 
       nav.style.display =
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Load Google Sheet content
   loadSheetData();
 });
 
@@ -54,16 +50,36 @@ function loadSheetData() {
     try {
 
       if (!response || !response.ok) {
-        showMessage('movieList', 'Content could not be loaded.');
-        showMessage('aiList', 'Content could not be loaded.');
-        showMessage('downloadList', 'Content could not be loaded.');
+
+        showMessage(
+          'profileList',
+          'Profile photo could not be loaded.'
+        );
+
+        showMessage(
+          'movieList',
+          'Content could not be loaded.'
+        );
+
+        showMessage(
+          'aiList',
+          'Content could not be loaded.'
+        );
+
+        showMessage(
+          'downloadList',
+          'Content could not be loaded.'
+        );
+
         return;
       }
 
-      const data = Array.isArray(response.data)
-        ? response.data
-        : [];
+      const data =
+        Array.isArray(response.data)
+          ? response.data
+          : [];
 
+      renderProfile(data);
       renderMovies(data);
       renderAI(data);
       renderDownloads(data);
@@ -85,7 +101,8 @@ function loadSheetData() {
   };
 
 
-  const script = document.createElement('script');
+  const script =
+    document.createElement('script');
 
   script.id = 'noyem-api-script';
 
@@ -95,6 +112,11 @@ function loadSheetData() {
     encodeURIComponent(callbackName);
 
   script.onerror = function() {
+
+    showMessage(
+      'profileList',
+      'Unable to load profile photo.'
+    );
 
     showMessage(
       'movieList',
@@ -110,21 +132,29 @@ function loadSheetData() {
       'downloadList',
       'Unable to load website content.'
     );
-
   };
 
   document.body.appendChild(script);
 }
 
 
+/* =========================
+   TYPE
+========================= */
+
 function getType(item) {
 
-  return String(item.Type || '')
+  return String(
+    item.Type || ''
+  )
     .trim()
     .toLowerCase();
-
 }
 
+
+/* =========================
+   GOOGLE DRIVE IMAGE URL
+========================= */
 
 function getDriveUrl(url) {
 
@@ -132,30 +162,50 @@ function getDriveUrl(url) {
 
   url = String(url).trim();
 
-  // Google Drive file URL
-  const match =
+  let match =
     url.match(/\/file\/d\/([^/]+)/);
 
   if (match) {
 
-    return 'https://drive.google.com/uc?export=view&id='
-      + match[1];
-
+    return (
+      'https://drive.google.com/uc?export=view&id=' +
+      match[1]
+    );
   }
+
+
+  match =
+    url.match(/[?&]id=([^&]+)/);
+
+  if (match) {
+
+    return (
+      'https://drive.google.com/uc?export=view&id=' +
+      match[1]
+    );
+  }
+
 
   return url;
 }
 
 
+/* =========================
+   CREATE IMAGE
+========================= */
+
 function createImage(url, title) {
 
   if (!url) return null;
 
-  const img = document.createElement('img');
+  const img =
+    document.createElement('img');
 
-  img.src = getDriveUrl(url);
+  img.src =
+    getDriveUrl(url);
 
-  img.alt = title || 'Noyem Official';
+  img.alt =
+    title || 'Noyem Official';
 
   img.loading = 'lazy';
 
@@ -169,62 +219,89 @@ function createImage(url, title) {
 }
 
 
+/* =========================
+   CREATE BUTTON
+========================= */
+
 function createButton(text, url) {
 
-  const a = document.createElement('a');
+  const a =
+    document.createElement('a');
 
-  a.className = 'btn small';
+  a.className =
+    'btn small';
 
-  a.textContent = text;
+  a.textContent =
+    text;
 
-  a.href = url;
+  a.href =
+    url;
 
-  a.target = '_blank';
+  a.target =
+    '_blank';
 
-  a.rel = 'noopener noreferrer';
+  a.rel =
+    'noopener noreferrer';
 
   return a;
 }
 
 
+/* =========================
+   CREATE CARD
+========================= */
+
 function createCard() {
 
-  const article = document.createElement('article');
+  const article =
+    document.createElement('article');
 
-  article.className = 'card';
+  article.className =
+    'card';
 
   return article;
 }
 
 
-function renderMovies(data) {
+/* =========================
+   PROFILE PHOTO
+========================= */
+
+function renderProfile(data) {
 
   const container =
-    document.getElementById('movieList');
+    document.getElementById('profileList');
 
   if (!container) return;
 
   container.innerHTML = '';
 
-  const movies = data.filter(item => {
 
-    const type = getType(item);
+  const profiles =
+    data.filter(item => {
 
-    return type === 'movie' ||
-           type === 'video';
+      const type =
+        getType(item);
 
-  });
+      return (
+        type === 'photo' ||
+        type === 'profile'
+      );
+
+    });
 
 
-  if (movies.length === 0) {
+  if (profiles.length === 0) {
 
     container.innerHTML = `
       <article class="card">
-        <div class="video">🎬</div>
-        <h3>No Movies Added Yet</h3>
+        <div class="video">👤</div>
+
+        <h3>Official Profile</h3>
+
         <p>
-          Add a movie in the Google Sheet and it
-          will appear here automatically.
+          Your official photo will appear here
+          when it is added to the Google Sheet.
         </p>
       </article>
     `;
@@ -233,25 +310,37 @@ function renderMovies(data) {
   }
 
 
-  movies.forEach(item => {
+  profiles.forEach(item => {
 
-    const card = createCard();
+    const card =
+      createCard();
+
 
     const image =
-      createImage(item.Photo, item.Title);
+      createImage(
+        item.Photo,
+        item.Title
+      );
+
 
     if (image) {
+
       card.appendChild(image);
+
     } else {
 
-      const video =
+      const placeholder =
         document.createElement('div');
 
-      video.className = 'video';
+      placeholder.className =
+        'video';
 
-      video.textContent = '🎬';
+      placeholder.textContent =
+        '👤';
 
-      card.appendChild(video);
+      card.appendChild(
+        placeholder
+      );
     }
 
 
@@ -259,7 +348,8 @@ function renderMovies(data) {
       document.createElement('h3');
 
     title.textContent =
-      item.Title || 'Untitled Video';
+      item.Title ||
+      'Noyem Official';
 
     card.appendChild(title);
 
@@ -272,12 +362,125 @@ function renderMovies(data) {
       description.textContent =
         item.Description;
 
-      card.appendChild(description);
+      card.appendChild(
+        description
+      );
+    }
+
+
+    container.appendChild(card);
+  });
+}
+
+
+/* =========================
+   MOVIES
+========================= */
+
+function renderMovies(data) {
+
+  const container =
+    document.getElementById('movieList');
+
+  if (!container) return;
+
+  container.innerHTML = '';
+
+
+  const movies =
+    data.filter(item => {
+
+      const type =
+        getType(item);
+
+      return (
+        type === 'movie' ||
+        type === 'video'
+      );
+
+    });
+
+
+  if (movies.length === 0) {
+
+    container.innerHTML = `
+      <article class="card">
+
+        <div class="video">🎬</div>
+
+        <h3>No Movies Added Yet</h3>
+
+        <p>
+          Add a movie in the Google Sheet
+          and it will appear here automatically.
+        </p>
+
+      </article>
+    `;
+
+    return;
+  }
+
+
+  movies.forEach(item => {
+
+    const card =
+      createCard();
+
+
+    const image =
+      createImage(
+        item.Photo,
+        item.Title
+      );
+
+
+    if (image) {
+
+      card.appendChild(image);
+
+    } else {
+
+      const video =
+        document.createElement('div');
+
+      video.className =
+        'video';
+
+      video.textContent =
+        '🎬';
+
+      card.appendChild(video);
+    }
+
+
+    const title =
+      document.createElement('h3');
+
+    title.textContent =
+      item.Title ||
+      'Untitled Video';
+
+    card.appendChild(title);
+
+
+    if (item.Description) {
+
+      const description =
+        document.createElement('p');
+
+      description.textContent =
+        item.Description;
+
+      card.appendChild(
+        description
+      );
     }
 
 
     const buttons =
       document.createElement('div');
+
 
     if (item['Video Link']) {
 
@@ -287,7 +490,6 @@ function renderMovies(data) {
           item['Video Link']
         )
       );
-
     }
 
 
@@ -299,17 +501,19 @@ function renderMovies(data) {
           item['Download Link']
         )
       );
-
     }
+
 
     card.appendChild(buttons);
 
     container.appendChild(card);
-
   });
-
 }
 
+
+/* =========================
+   AI GALLERY
+========================= */
 
 function renderAI(data) {
 
@@ -321,20 +525,26 @@ function renderAI(data) {
   container.innerHTML = '';
 
 
-  const items = data.filter(item =>
-    getType(item) === 'ai'
-  );
+  const items =
+    data.filter(item =>
+      getType(item) === 'ai'
+    );
 
 
   if (items.length === 0) {
 
     container.innerHTML = `
       <article class="card">
+
         <div class="video">🖼️</div>
+
         <h3>No AI Images Added Yet</h3>
+
         <p>
-          Add an AI image and prompt in the Google Sheet.
+          Add an AI image and prompt
+          in the Google Sheet.
         </p>
+
       </article>
     `;
 
@@ -344,10 +554,16 @@ function renderAI(data) {
 
   items.forEach(item => {
 
-    const card = createCard();
+    const card =
+      createCard();
+
 
     const image =
-      createImage(item.Photo, item.Title);
+      createImage(
+        item.Photo,
+        item.Title
+      );
+
 
     if (image) {
 
@@ -355,15 +571,13 @@ function renderAI(data) {
 
       if (item.Photo) {
 
-        const download =
+        card.appendChild(
           createButton(
             '⬇ Download Image',
             item.Photo
-          );
-
-        card.appendChild(download);
+          )
+        );
       }
-
     }
 
 
@@ -371,7 +585,8 @@ function renderAI(data) {
       document.createElement('h3');
 
     title.textContent =
-      item.Title || 'AI Image';
+      item.Title ||
+      'AI Image';
 
     card.appendChild(title);
 
@@ -384,7 +599,9 @@ function renderAI(data) {
       description.textContent =
         item.Description;
 
-      card.appendChild(description);
+      card.appendChild(
+        description
+      );
     }
 
 
@@ -396,7 +613,9 @@ function renderAI(data) {
       promptTitle.textContent =
         'AI Prompt';
 
-      card.appendChild(promptTitle);
+      card.appendChild(
+        promptTitle
+      );
 
 
       const prompt =
@@ -405,15 +624,20 @@ function renderAI(data) {
       prompt.textContent =
         item['AI Prompt'];
 
-      prompt.style.whiteSpace = 'pre-wrap';
+      prompt.style.whiteSpace =
+        'pre-wrap';
 
-      prompt.style.background = '#ffffff08';
+      prompt.style.background =
+        '#ffffff08';
 
-      prompt.style.padding = '12px';
+      prompt.style.padding =
+        '12px';
 
-      prompt.style.borderRadius = '10px';
+      prompt.style.borderRadius =
+        '10px';
 
-      prompt.style.overflowX = 'auto';
+      prompt.style.overflowX =
+        'auto';
 
       card.appendChild(prompt);
 
@@ -421,80 +645,94 @@ function renderAI(data) {
       const copy =
         document.createElement('button');
 
-      copy.className = 'btn small';
+      copy.className =
+        'btn small';
 
       copy.textContent =
         '📋 Copy Prompt';
 
 
-      copy.onclick = async () => {
+      copy.onclick =
+        async () => {
 
-        try {
+          try {
 
-          await navigator.clipboard.writeText(
-            item['AI Prompt']
-          );
-
-          copy.textContent =
-            '✅ Copied';
-
-          setTimeout(() => {
+            await navigator.clipboard.writeText(
+              item['AI Prompt']
+            );
 
             copy.textContent =
-              '📋 Copy Prompt';
+              '✅ Copied';
 
-          }, 1500);
+            setTimeout(() => {
 
-        } catch (error) {
+              copy.textContent =
+                '📋 Copy Prompt';
 
-          alert('Copy failed. Please copy the prompt manually.');
+            }, 1500);
 
-        }
+          } catch (error) {
 
-      };
+            alert(
+              'Copy failed. Please copy the prompt manually.'
+            );
+          }
+        };
 
 
       card.appendChild(copy);
-
     }
 
 
     container.appendChild(card);
-
   });
-
 }
 
+
+/* =========================
+   DOWNLOADS / APK
+========================= */
 
 function renderDownloads(data) {
 
   const container =
-    document.getElementById('downloadList');
+    document.getElementById(
+      'downloadList'
+    );
 
   if (!container) return;
 
   container.innerHTML = '';
 
 
-  const items = data.filter(item => {
+  const items =
+    data.filter(item => {
 
-    const type = getType(item);
+      const type =
+        getType(item);
 
-    return type === 'apk' ||
-           type === 'download';
+      return (
+        type === 'apk' ||
+        type === 'download'
+      );
 
-  });
+    });
 
 
   if (items.length === 0) {
 
     container.innerHTML = `
       <article class="card">
+
         <div class="video">📱</div>
+
         <h3>No Downloads Added Yet</h3>
+
         <p>
-          Add an APK or download item in the Google Sheet.
+          Add an APK or download item
+          in the Google Sheet.
         </p>
+
       </article>
     `;
 
@@ -504,19 +742,28 @@ function renderDownloads(data) {
 
   items.forEach(item => {
 
-    const card = createCard();
+    const card =
+      createCard();
+
 
     const image =
-      createImage(item.Photo, item.Title);
+      createImage(
+        item.Photo,
+        item.Title
+      );
+
 
     if (image) {
+
       card.appendChild(image);
+
     } else {
 
       const icon =
         document.createElement('div');
 
-      icon.className = 'video';
+      icon.className =
+        'video';
 
       icon.textContent =
         getType(item) === 'apk'
@@ -531,7 +778,8 @@ function renderDownloads(data) {
       document.createElement('h3');
 
     title.textContent =
-      item.Title || 'Download';
+      item.Title ||
+      'Download';
 
     card.appendChild(title);
 
@@ -544,7 +792,9 @@ function renderDownloads(data) {
       description.textContent =
         item.Description;
 
-      card.appendChild(description);
+      card.appendChild(
+        description
+      );
     }
 
 
@@ -555,22 +805,24 @@ function renderDownloads(data) {
           ? '⬇ Download APK'
           : '⬇ Download';
 
+
       card.appendChild(
         createButton(
           buttonText,
           item['Download Link']
         )
       );
-
     }
 
 
     container.appendChild(card);
-
   });
-
 }
 
+
+/* =========================
+   MESSAGE
+========================= */
 
 function showMessage(id, message) {
 
@@ -581,18 +833,22 @@ function showMessage(id, message) {
 
   container.innerHTML = '';
 
+
   const card =
     document.createElement('article');
 
-  card.className = 'card';
+  card.className =
+    'card';
+
 
   const text =
     document.createElement('p');
 
-  text.textContent = message;
+  text.textContent =
+    message;
+
 
   card.appendChild(text);
 
   container.appendChild(card);
-
 }
